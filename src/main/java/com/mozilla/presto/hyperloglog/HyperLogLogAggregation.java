@@ -29,7 +29,7 @@ import io.airlift.slice.Slice;
 @AggregationFunction("merge")
 public final class HyperLogLogAggregation
 {
-    private static final AccumulatorStateSerializer<HyperLogLogState> serializer = new StateCompiler().generateStateSerializer(HyperLogLogState.class);
+    private static final AccumulatorStateSerializer<HyperLogLogState> serializer = StateCompiler.generateStateSerializer(HyperLogLogState.class);
 
     private HyperLogLogAggregation() {}
 

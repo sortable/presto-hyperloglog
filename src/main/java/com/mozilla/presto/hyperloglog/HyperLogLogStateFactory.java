@@ -19,8 +19,6 @@ import com.facebook.presto.operator.aggregation.state.AbstractGroupedAccumulator
 import com.facebook.presto.spi.function.AccumulatorStateFactory;
 import com.twitter.algebird.DenseHLL;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public class HyperLogLogStateFactory
         implements AccumulatorStateFactory<HyperLogLogState>
 {
@@ -70,7 +68,7 @@ public class HyperLogLogStateFactory
         @Override
         public void setHyperLogLog(DenseHLL hll)
         {
-            checkNotNull(hll, "value is null");
+            java.util.Objects.requireNonNull(hll, "value is null");
             bfs.set(getGroupId(), hll);
         }
 
