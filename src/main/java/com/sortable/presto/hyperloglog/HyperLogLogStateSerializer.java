@@ -11,16 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.mozilla.presto.hyperloglog;
+package com.sortable.presto.hyperloglog;
 
 import com.facebook.presto.spi.block.Block;
 import com.facebook.presto.spi.block.BlockBuilder;
 import com.facebook.presto.spi.function.AccumulatorStateSerializer;
 import com.facebook.presto.spi.type.Type;
-import com.twitter.algebird.HyperLogLog;
-import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
+
+import static com.facebook.presto.spi.type.VarbinaryType.VARBINARY;
 
 public class HyperLogLogStateSerializer
         implements AccumulatorStateSerializer<HyperLogLogState>
@@ -28,27 +27,24 @@ public class HyperLogLogStateSerializer
     @Override
     public Type getSerializedType()
     {
-        return HyperLogLogType.HYPER_LOG_LOG;
+        return VARBINARY;
     }
 
     @Override
     public void serialize(HyperLogLogState state, BlockBuilder out)
     {
-        if (state.getHyperLogLog() == null) {
+        byte[] bytes = state.getBytes();
+        if (bytes == null) {
             out.appendNull();
         }
         else {
-            Slice slice = Slices.wrappedBuffer(HyperLogLog.toBytes(state.getHyperLogLog()));
-            HyperLogLogType.HYPER_LOG_LOG.writeSlice(out, slice);
+            VARBINARY.writeSlice(out, Slices.wrappedBuffer(bytes));
         }
     }
 
     @Override
     public void deserialize(Block block, int index, HyperLogLogState state)
     {
-        if (!block.isNull(index)) {
-            Slice slice = HyperLogLogType.HYPER_LOG_LOG.getSlice(block, index);
-            state.setHyperLogLog(HyperLogLog.fromBytes(slice.getBytes()).toDenseHLL());
-        }
+        state.setBytes(VARBINARY.getSlice(block, index).getBytes());
     }
 }

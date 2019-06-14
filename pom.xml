@@ -61,15 +61,21 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
+            <groupId>io.airlift</groupId>
+            <artifactId>stats</artifactId>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.twitter</groupId>
-            <artifactId>algebird-core_2.10</artifactId>
-            <version>0.12.0</version>
+            <groupId>org.openjdk.jol</groupId>
+            <artifactId>jol-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- for testing -->
@@ -120,7 +126,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.mozilla.presto.hyperloglog.HyperLogLogPlugin</mainClass>
+                            <mainClass>com.sortable.presto.hyperloglog.HyperLogLogPlugin</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -12,31 +12,20 @@
  * limitations under the License.
  */
 
-package com.mozilla.presto.hyperloglog;
+package com.sortable.presto.hyperloglog;
 
 import com.facebook.presto.spi.Plugin;
-import com.facebook.presto.spi.type.Type;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.Set;
-
-import static com.mozilla.presto.hyperloglog.HyperLogLogType.HYPER_LOG_LOG;
 
 public class HyperLogLogPlugin
         implements Plugin
 {
     @Override
-    public Iterable<Type> getTypes()
-    {
-        return ImmutableList.of(HYPER_LOG_LOG);
-    }
-
-    @Override
     public Set<Class<?>> getFunctions()
     {
         return ImmutableSet.<Class<?>>builder()
-                .add(HyperLogLogScalarFunctions.class)
                 .add(HyperLogLogAggregation.class)
                 .build();
     }

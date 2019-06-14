@@ -11,22 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.mozilla.presto.hyperloglog;
+package com.sortable.presto.hyperloglog;
 
 import com.facebook.presto.spi.function.AccumulatorState;
 import com.facebook.presto.spi.function.AccumulatorStateMetadata;
-import com.twitter.algebird.DenseHLL;
-
-import javax.validation.constraints.NotNull;
 
 @AccumulatorStateMetadata(stateSerializerClass = HyperLogLogStateSerializer.class, stateFactoryClass = HyperLogLogStateFactory.class)
-public interface HyperLogLogState extends AccumulatorState
+public interface HyperLogLogState
+        extends AccumulatorState
 {
-    @NotNull
-    DenseHLL getHyperLogLog();
+    byte[] getBytes();
 
-    void setHyperLogLog(DenseHLL value);
+    void setBytes(byte[] value);
 
     void addMemoryUsage(int value);
 }

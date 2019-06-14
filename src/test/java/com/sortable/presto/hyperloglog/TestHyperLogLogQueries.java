@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package com.mozilla.presto.hyperloglog;
+package com.sortable.presto.hyperloglog;
 
 import com.facebook.presto.Session;
 import com.facebook.presto.spi.type.Type;
@@ -39,22 +39,28 @@ public class TestHyperLogLogQueries
 //    public void testHyperLogLogMerge()
 //            throws Exception
 //    {
-//        assertQuery("select cardinality(merge(hll_create(v, 10))) from (values ('foo'), ('bar'), ('foo')) as t(v)", "select 3");
+//        assertQuery("select cardinality(merge(approx_set(v))) from (values ('foo'), ('bar'), ('foo')) as t(v)", "select 3");
 //    }
 
     @Test
     public void testHyperLogLogGroupMerge()
             throws Exception
     {
-        assertQuery("select k, cardinality(merge(hll_create(v, 10))) from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k",
-                "select * from (values ('US', 2), ('IT', 1))");
+//        assertQuery("select k, cardinality(merge(approx_set(v, 10))) from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k",
+//                "select * from (values ('US', 2), ('IT', 1))");
+        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select cardinality(merge_hll(hll))" +
+                        " from x",
+                "select 2");
     }
 
     @Test
     public void testHyperLogLogCast()
         throws Exception
     {
-        assertQuery("select cardinality(cast(cast(hll_create('foo', 4) as varbinary) as HLL))", "select 1");
+        assertQuery("select cardinality(approx_set('foo'))", "select 1");
+//        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select merge_hll(hll) from x",
+//                "with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select cast(merge(hll) as P4HyperLogLog) from x");
+
     }
 
     private static LocalQueryRunner createLocalQueryRunner()

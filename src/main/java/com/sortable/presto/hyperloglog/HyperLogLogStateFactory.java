@@ -11,13 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.mozilla.presto.hyperloglog;
+package com.sortable.presto.hyperloglog;
 
 import com.facebook.presto.array.ObjectBigArray;
-import com.facebook.presto.operator.aggregation.state.AbstractGroupedAccumulatorState;
 import com.facebook.presto.spi.function.AccumulatorStateFactory;
-import com.twitter.algebird.DenseHLL;
+import com.facebook.presto.spi.function.GroupedAccumulatorState;
+import io.airlift.slice.SizeOf;
+import org.openjdk.jol.info.ClassLayout;
+
+import static java.util.Objects.requireNonNull;
 
 public class HyperLogLogStateFactory
         implements AccumulatorStateFactory<HyperLogLogState>
@@ -25,7 +27,7 @@ public class HyperLogLogStateFactory
     @Override
     public HyperLogLogState createSingleState()
     {
-       return new SingleHyperLogLogState();
+        return new SingleHyperLogLogState();
     }
 
     @Override
@@ -47,29 +49,36 @@ public class HyperLogLogStateFactory
     }
 
     public static class GroupedHyperLogLogState
-            extends AbstractGroupedAccumulatorState
-            implements HyperLogLogState
+            implements GroupedAccumulatorState, HyperLogLogState
     {
-        private final ObjectBigArray<DenseHLL> bfs = new ObjectBigArray<>();
+        private static final int INSTANCE_SIZE = ClassLayout.parseClass(GroupedHyperLogLogState.class).instanceSize();
+        private final ObjectBigArray<byte[]> hlls = new ObjectBigArray<>();
         private long size;
+        private long groupId;
+
+        @Override
+        public void setGroupId(long groupId)
+        {
+            this.groupId = groupId;
+        }
 
         @Override
         public void ensureCapacity(long size)
         {
-            bfs.ensureCapacity(size);
+            hlls.ensureCapacity(size);
         }
 
         @Override
-        public DenseHLL getHyperLogLog()
+        public byte[] getBytes()
         {
-            return bfs.get(getGroupId());
+            return hlls.get(groupId);
         }
 
         @Override
-        public void setHyperLogLog(DenseHLL hll)
+        public void setBytes(byte[] value)
         {
-            java.util.Objects.requireNonNull(hll, "value is null");
-            bfs.set(getGroupId(), hll);
+            requireNonNull(value, "value is null");
+            hlls.set(groupId, value);
         }
 
         @Override
@@ -81,25 +90,26 @@ public class HyperLogLogStateFactory
         @Override
         public long getEstimatedSize()
         {
-            return size + bfs.sizeOf();
+            return INSTANCE_SIZE + size + hlls.sizeOf();
         }
     }
 
     public static class SingleHyperLogLogState
             implements HyperLogLogState
     {
-        private DenseHLL hll;
+        private static final int INSTANCE_SIZE = ClassLayout.parseClass(SingleHyperLogLogState.class).instanceSize();
+        private byte[] bytes;
 
         @Override
-        public DenseHLL getHyperLogLog()
+        public byte[] getBytes()
         {
-            return hll;
+            return bytes;
         }
 
         @Override
-        public void setHyperLogLog(DenseHLL hll)
+        public void setBytes(byte[] value)
         {
-            this.hll = hll;
+            bytes = value;
         }
 
         @Override
@@ -111,7 +121,11 @@ public class HyperLogLogStateFactory
         @Override
         public long getEstimatedSize()
         {
-            return hll.size();
+            long size = INSTANCE_SIZE;
+            if (bytes != null) {
+                size += SizeOf.sizeOfByteArray(bytes.length);
+            }
+            return size;
         }
     }
 }
