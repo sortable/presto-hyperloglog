@@ -165,6 +165,10 @@ public final class HyperLogLogAggregation
         ArrayList<Integer> overflowsBuckets = new ArrayList<>();
         ArrayList<Integer> overflowsValues = new ArrayList<>();
 
+        // todo: sort overflows
+        // todo: little endian ?
+        // todo: use DynamicSliceOutput ?
+
         for (int i = 0; i < bytes.length; i++) {
             int delta = bytes[i] - baseline;
             if (delta > MAX_DELTA) {
