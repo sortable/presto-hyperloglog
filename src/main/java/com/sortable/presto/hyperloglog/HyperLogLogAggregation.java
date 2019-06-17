@@ -22,8 +22,9 @@ import com.facebook.presto.spi.function.InputFunction;
 import com.facebook.presto.spi.function.OutputFunction;
 import com.facebook.presto.spi.function.SqlType;
 import com.facebook.presto.spi.type.StandardTypes;
-import io.airlift.slice.Slice;
 import io.airlift.slice.BasicSliceInput;
+import io.airlift.slice.Slice;
+
 import java.util.ArrayList;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
@@ -52,7 +53,7 @@ public final class HyperLogLogAggregation
 
     private static void insert(byte[] bytes, int bucket, int value)
     {
-        if (bytes[bucket] < value) {
+        if ((int) (bytes[bucket]) < value) {
             bytes[bucket] = (byte) value;
         }
     }
@@ -87,6 +88,9 @@ public final class HyperLogLogAggregation
                     zeros = bits + decodeBucketValue(entry);
                 }
                 insert(previous, bucket, zeros + 1);
+            }
+            if (input.isReadable()) {
+                throw new PrestoException(INVALID_FUNCTION_ARGUMENT, "input is too big");
             }
             return;
         }
@@ -148,10 +152,12 @@ public final class HyperLogLogAggregation
     {
         byte[] bytes = state.getBytes();
         int p = (int) (Math.log(bytes.length) / Math.log(2));
-        int baseline = 0;
+
+        // a number that will larger than
+        int baseline = Byte.MAX_VALUE;
 
         for (int i = 0; i < bytes.length; i++) {
-            if (bytes[i] > baseline) {
+            if (bytes[i] < baseline) {
                 baseline = bytes[i];
             }
         }
@@ -164,10 +170,6 @@ public final class HyperLogLogAggregation
 
         ArrayList<Integer> overflowsBuckets = new ArrayList<>();
         ArrayList<Integer> overflowsValues = new ArrayList<>();
-
-        // todo: sort overflows
-        // todo: little endian ?
-        // todo: use DynamicSliceOutput ?
 
         for (int i = 0; i < bytes.length; i++) {
             int delta = bytes[i] - baseline;
@@ -186,6 +188,8 @@ public final class HyperLogLogAggregation
 
         int overflows = overflowsBuckets.size();
         out.writeShort(overflows);
+
+        // Note that due to the order overflowsBuckets is added, it's already sorted.
 
         for (int i = 0; i < overflows; i++) {
             out.writeShort(overflowsBuckets.get(i));

@@ -15,11 +15,11 @@
 package com.sortable.presto.hyperloglog;
 
 import com.facebook.presto.Session;
+import com.facebook.presto.spi.type.ParametricType;
 import com.facebook.presto.spi.type.Type;
 import com.facebook.presto.testing.LocalQueryRunner;
 import com.facebook.presto.tests.AbstractTestQueryFramework;
 import com.facebook.presto.tpch.TpchConnectorFactory;
-import com.facebook.presto.spi.type.ParametricType;
 import com.google.common.collect.ImmutableMap;
 import org.testng.annotations.Test;
 
@@ -48,19 +48,18 @@ public class TestHyperLogLogQueries
     {
 //        assertQuery("select k, cardinality(merge(approx_set(v, 10))) from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k",
 //                "select * from (values ('US', 2), ('IT', 1))");
-        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select cardinality(merge_hll(hll))" +
-                        " from x",
+        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select cardinality(merge_hll(hll)) from x",
                 "select 2");
+//        assertQuery("select cardinality(merge_hll(empty_approx_set()))", "select 0");
     }
 
     @Test
     public void testHyperLogLogCast()
-        throws Exception
+            throws Exception
     {
         assertQuery("select cardinality(approx_set('foo'))", "select 1");
 //        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select merge_hll(hll) from x",
 //                "with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select cast(merge(hll) as P4HyperLogLog) from x");
-
     }
 
     private static LocalQueryRunner createLocalQueryRunner()
