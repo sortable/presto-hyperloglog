@@ -26,13 +26,13 @@
 
         <dependency>
             <groupId>com.facebook.presto</groupId>
-            <artifactId>presto-main</artifactId>
-            <scope>provided</scope>
+            <artifactId>presto-array</artifactId>
+            <!--<scope>provided</scope>-->
         </dependency>
 
         <dependency>
             <groupId>com.facebook.presto</groupId>
-            <artifactId>presto-array</artifactId>
+            <artifactId>presto-main</artifactId>
             <scope>provided</scope>
         </dependency>
 
