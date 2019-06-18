@@ -100,7 +100,7 @@ public final class HyperLogLogAggregation
             int baseline = input.readByte();
             for (int i = 0; i < (bucketSize / 2); i++) {
                 byte twoDeltas = input.readByte();
-                int firstValue = (twoDeltas >> 4) + baseline;
+                int firstValue = ((twoDeltas >> 4) & 15) + baseline;
                 int secondValue = (twoDeltas & 15) + baseline;
                 insert(previous, 2 * i, firstValue);
                 insert(previous, 2 * i + 1, secondValue);
