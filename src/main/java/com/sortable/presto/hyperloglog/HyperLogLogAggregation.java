@@ -114,7 +114,9 @@ public final class HyperLogLogAggregation
             for (int i = 0; i < overflows; i++) {
                 insert(previous, overflowBuckets[i], baseline + MAX_DELTA + input.readByte());
             }
-
+            if (input.isReadable()) {
+                throw new PrestoException(INVALID_FUNCTION_ARGUMENT, "input is too big");
+            }
             return;
         }
 
