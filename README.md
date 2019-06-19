@@ -32,11 +32,17 @@ It's currently targeting on presto `v0.206`.
 
 You can change presto version in `pom.xml` to upgrade to later versions.
 
-### Reference
+### Presto Reference
 
-- https://prestodb.github.io/docs/current/functions/hyperloglog.html
-- https://prestodb.github.io/docs/current/develop/spi-overview.html
-- https://prestodb.github.io/docs/current/develop/functions.html
+- [Presto's HyperLogLog doc][1]
+- [Presto's Plugin doc][2]
+- [Presto's UDF doc][3]
+
+### Implementation Reference
+
+- [Airlift's HyperLogLog format doc][4] (how HyperLogLog instance is serialised)
+- [Airlift's Dense HLL code][5] (how HyperLogLog in dense format works)
+- [Airlift's Sparse HLL code][6] (how HyperLogLog in sparse format works)
 
 ### Q&A
 
@@ -49,11 +55,11 @@ You can change presto version in `pom.xml` to upgrade to later versions.
 - What's the impact of above "side-effect" ?
     - The merged HyperLogLog sketch will remain in dense format even it may should stay in sparse format. This will
     result slightly lower precision for low cardinality estimation. It does not affect high cardinality estimation.
-    You can find a more detailed technical explanation in 5.3.1 from [this paper][3].
+    You can find a more detailed technical explanation in 5.3.1 from [this paper][7].
 
 - Why built-in `merge` is slow ?
-    - built-in `merge` uses airlift's [`HyperLogLog.mergeWith`][1] underneath, which is not
-    very optimised for `sparse + dense` case, because it just simply [cast sparse to dense][2] and merge
+    - built-in `merge` uses airlift's [`HyperLogLog.mergeWith`][8] underneath, which is not
+    very optimised for `sparse + dense` case, because it just simply [cast sparse to dense][9] and merge
     them, which is not very efficient. Also, `sparse + sparse` is fairly expensive due to it requires
     `HyperLogLog` as result.
 
@@ -71,6 +77,12 @@ You can change presto version in `pom.xml` to upgrade to later versions.
     - When we need to make merged result space-efficient. For example, when we want to save
     merged hyperloglog sketch to AWS S3, we should use built-in `merge` to make it space-efficiency.
 
-[1]: https://github.com/airlift/airlift/blob/c5ebbd57fa32c76bf0e9754bd80620191cbce849/stats/src/main/java/io/airlift/stats/cardinality/HyperLogLog.java#L81
-[2]: https://github.com/airlift/airlift/blob/c5ebbd57fa32c76bf0e9754bd80620191cbce849/stats/src/main/java/io/airlift/stats/cardinality/HyperLogLog.java#L89
-[3]: http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/40671.pdf
+[1]: https://prestodb.github.io/docs/current/functions/hyperloglog.html
+[2]: https://prestodb.github.io/docs/current/develop/spi-overview.html
+[3]: https://prestodb.github.io/docs/current/develop/functions.html
+[4]: https://github.com/airlift/airlift/blob/c5ebbd57fa32c76bf0e9754bd80620191cbce849/stats/docs/hll.md
+[5]: https://github.com/airlift/airlift/blob/c5ebbd57fa32c76bf0e9754bd80620191cbce849/stats/src/main/java/io/airlift/stats/cardinality/DenseHll.java
+[6]: https://github.com/airlift/airlift/blob/c5ebbd57fa32c76bf0e9754bd80620191cbce849/stats/src/main/java/io/airlift/stats/cardinality/SparseHll.java
+[7]: http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/40671.pdf
+[8]: https://github.com/airlift/airlift/blob/c5ebbd57fa32c76bf0e9754bd80620191cbce849/stats/src/main/java/io/airlift/stats/cardinality/HyperLogLog.java#L81
+[9]: https://github.com/airlift/airlift/blob/c5ebbd57fa32c76bf0e9754bd80620191cbce849/stats/src/main/java/io/airlift/stats/cardinality/HyperLogLog.java#L89
