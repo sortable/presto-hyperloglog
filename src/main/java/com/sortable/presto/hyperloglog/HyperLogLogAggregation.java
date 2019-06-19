@@ -190,7 +190,10 @@ public final class HyperLogLogAggregation
         int overflows = overflowsBuckets.size();
         out.writeShort(overflows);
 
-        // Note that due to the order overflowsBuckets is added, it's already sorted.
+        // Note: dense format requires overflows are sorted at
+        // https://github.com/airlift/airlift/blob/c5ebbd57fa32c76bf0e9754bd80620191cbce849/stats/src/main/java/io/airlift/stats/cardinality/DenseHll.java#L310
+        //
+        // Due to the order overflowsBuckets is added, it's already sorted.
 
         for (int i = 0; i < overflows; i++) {
             out.writeShort(overflowsBuckets.get(i));
