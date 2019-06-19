@@ -24,6 +24,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Note:
+          - we need to add `presto-array` without `provided` because
+            plugin env does not have it.
+
+          - we need to put `presto-array` before `presto-main` because
+            `presto-main` has a `provided` `presto-array` dependency.
+            Put `presto-array` before would avoid dependency issue.
+        -->
         <dependency>
             <groupId>com.facebook.presto</groupId>
             <artifactId>presto-array</artifactId>
