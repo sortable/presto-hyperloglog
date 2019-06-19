@@ -155,9 +155,8 @@ public final class HyperLogLogAggregation
         byte[] bytes = state.getBytes();
         int p = (int) (Math.log(bytes.length) / Math.log(2));
 
-        // a number that will larger than
+        // baseline is the min of all bucket values
         int baseline = Byte.MAX_VALUE;
-
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] < baseline) {
                 baseline = bytes[i];

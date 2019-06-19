@@ -35,31 +35,20 @@ public class TestHyperLogLogQueries
         super(TestHyperLogLogQueries::createLocalQueryRunner);
     }
 
-//    @Test
-//    public void testHyperLogLogMerge()
-//            throws Exception
-//    {
-//        assertQuery("select cardinality(merge(approx_set(v))) from (values ('foo'), ('bar'), ('foo')) as t(v)", "select 3");
-//    }
+    @Test
+    public void testHyperLogLogMerge()
+            throws Exception
+    {
+        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select cardinality(merge_hll(hll)) from x",
+                "select 2");
+    }
 
     @Test
     public void testHyperLogLogGroupMerge()
             throws Exception
     {
-//        assertQuery("select k, cardinality(merge(approx_set(v, 10))) from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k",
-//                "select * from (values ('US', 2), ('IT', 1))");
-        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select cardinality(merge_hll(hll)) from x",
-                "select 2");
-//        assertQuery("select cardinality(merge_hll(empty_approx_set()))", "select 0");
-    }
-
-    @Test
-    public void testHyperLogLogCast()
-            throws Exception
-    {
-        assertQuery("select cardinality(approx_set('foo'))", "select 1");
-//        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select merge_hll(hll) from x",
-//                "with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select cast(merge(hll) as P4HyperLogLog) from x");
+        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select k, cardinality(merge_hll(hll)) from x group by 1",
+                "values ('US', 2), ('IT', 1)");
     }
 
     private static LocalQueryRunner createLocalQueryRunner()
