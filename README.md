@@ -8,7 +8,7 @@ A 10+ times faster HyperLogLog merge aggregation UDF support for Facebook Presto
 
 It takes `HyperLogLog` as input and result `P4HyperLogLog` (HyperLogLog dense format) as output.
 
-`merge_hll(HyperLogLog)` is equivalent to `cast(merge(HyperLogLog) as P4HyperLogLog`.
+`merge_hll(HyperLogLog)` is equivalent to `cast(merge(HyperLogLog) as P4HyperLogLog)`.
 
 ### Test
 
