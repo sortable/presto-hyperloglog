@@ -79,6 +79,27 @@ You can change presto version in `pom.xml` to upgrade to later versions.
     - When we need to make merged result space-efficient. For example, when we want to save
     merged hyperloglog sketch to AWS S3, we should use built-in `merge` to make it space-efficiency.
 
+### Benchmarks
+
+Setup:
+- Presto cluster with 18 worker nodes.
+- Benchmark data is 700GB size parquet files saved in AWS S3.
+- Serialised HyperLogLog saved in parquet files: 95% of them are in sparse format and 5% of them are in dense format.
+Note that `merge_p4` works particularly well for merging sparse format, comparing to built-in `merge` function.
+
+Steps:
+- run `select cardinality(merge(cast(hll as hyperloglog))) from bench_data`,
+which does estimation via built-in `merge` function, it takes 677 seconds to finish.
+- run `select cardinality(merge_p4(cast(hll as hyperloglog))) from bench_data`,
+which does estimation via `merge_p4` function, it takes 33 seconds to finish.
+- run `select sum(length(hll)) from bench_data`, which is a baseline metric for processing
+bench data, it takes 24 seconds to finish.
+
+Result:
+- We can find that query time reduced from 677s to 34s, which is about 20 times (677 / 33) faster.
+- We can find that cost of merge operation reduced from 653s (677 - 24) to 9s (33 - 24), which is
+about 72 times (653 / 9) faster.
+
 [1]: https://prestodb.github.io/docs/current/functions/hyperloglog.html
 [2]: https://prestodb.github.io/docs/current/develop/spi-overview.html
 [3]: https://prestodb.github.io/docs/current/develop/functions.html
