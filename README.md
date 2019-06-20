@@ -4,11 +4,11 @@ A 10+ times faster HyperLogLog merge aggregation UDF support for Facebook Presto
 
 ### Aggregate Function
 
-`merge_hll(HyperLogLog) -> P4HyperLogLog`
+`merge_p4(HyperLogLog) -> P4HyperLogLog`
 
 It takes `HyperLogLog` as input and result `P4HyperLogLog` (HyperLogLog dense format) as output.
 
-`merge_hll(HyperLogLog)` is equivalent to `cast(merge(HyperLogLog) as P4HyperLogLog)`.
+`merge_p4(HyperLogLog)` is equivalent to `cast(merge(HyperLogLog) as P4HyperLogLog)`.
 
 ### Test
 
@@ -48,11 +48,11 @@ You can change presto version in `pom.xml` to upgrade to later versions.
 
 ### Q&A
 
-- Is this `merge_hll` faster than built-in `merge` ?
-    - Yes. `merge_hll` is more than 10 times faster than built-in `merge` when we compare them in production env.
+- Is this `merge_p4` faster than built-in `merge` ?
+    - Yes. `merge_p4` is more than 10 times faster than built-in `merge` when we compare them in production env.
 
 - Why Presto does not make built-in `merge` function as fast as this one ?
-    - This `merge_hll` has a side-effect, which is that the returned result is `P4HyperLogLog` instead of `HyperLogLog`.
+    - This `merge_p4` has a side-effect, which is that the returned result is `P4HyperLogLog` instead of `HyperLogLog`.
 
 - What's the impact of above "side-effect" ?
     - The merged HyperLogLog sketch will remain in dense format even it may should stay in sparse format. This will
@@ -65,17 +65,17 @@ You can change presto version in `pom.xml` to upgrade to later versions.
     them, which is not very efficient. Also, `sparse + sparse` is fairly expensive due to it requires
     `HyperLogLog` as result.
 
-- Why this `merge_hll` is faster ?
-    - `merge_hll` starts with dense format, which is effectively a bitmap. Then it reads info from
+- Why this `merge_p4` is faster ?
+    - `merge_p4` starts with dense format, which is effectively a bitmap. Then it reads info from
     serialised HyperLogLog binary directly and update the bitmap accordingly.
 
-- When should we use `merge_hll` instead of built-in `merge` ?
+- When should we use `merge_p4` instead of built-in `merge` ?
     - When we need to make merge fast and we do not care about result size (because size of
     `P4HyperLogLog` >= size of `HyperLogLog`). For example, when we run
-    `cardinality(merge_hll(hyperloglog_sketch))`, we only care about cardinality and we do not
+    `cardinality(merge_p4(hyperloglog_sketch))`, we only care about cardinality and we do not
     care about size of merged result.
 
-- When should we use built-in `merge` instead of this `merge_hll` ?
+- When should we use built-in `merge` instead of this `merge_p4` ?
     - When we need to make merged result space-efficient. For example, when we want to save
     merged hyperloglog sketch to AWS S3, we should use built-in `merge` to make it space-efficiency.
 
