@@ -1,6 +1,6 @@
 # presto-hyperloglog
 
-A 10+ times faster HyperLogLog merge aggregation UDF support for Facebook Presto (prestodb.io).
+A faster HyperLogLog merge aggregation UDF support for Presto.
 
 ### Aggregate Function
 
