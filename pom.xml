@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.facebook.presto</groupId>
         <artifactId>presto-root</artifactId>
-        <version>0.152.3</version>
+        <version>0.206</version>
     </parent>
 
     <artifactId>presto-hyperloglog</artifactId>
@@ -24,15 +24,23 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Note:
+          - we need to add `presto-array` without `provided` because
+            plugin env does not have it.
+
+          - we need to put `presto-array` before `presto-main` because
+            `presto-main` has a `provided` `presto-array` dependency.
+            Put `presto-array` before would avoid dependency issue.
+        -->
         <dependency>
             <groupId>com.facebook.presto</groupId>
-            <artifactId>presto-main</artifactId>
-            <scope>provided</scope>
+            <artifactId>presto-array</artifactId>
+            <!--<scope>provided</scope>-->
         </dependency>
 
         <dependency>
             <groupId>com.facebook.presto</groupId>
-            <artifactId>presto-array</artifactId>
+            <artifactId>presto-main</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -45,7 +53,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
 
         <dependency>
@@ -61,15 +69,21 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
+            <groupId>io.airlift</groupId>
+            <artifactId>stats</artifactId>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.twitter</groupId>
-            <artifactId>algebird-core_2.10</artifactId>
-            <version>0.12.0</version>
+            <groupId>org.openjdk.jol</groupId>
+            <artifactId>jol-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- for testing -->
@@ -120,7 +134,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.mozilla.presto.hyperloglog.HyperLogLogPlugin</mainClass>
+                            <mainClass>com.sortable.presto.hyperloglog.HyperLogLogPlugin</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
