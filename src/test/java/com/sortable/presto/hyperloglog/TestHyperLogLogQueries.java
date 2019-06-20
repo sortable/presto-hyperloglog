@@ -39,16 +39,18 @@ public class TestHyperLogLogQueries
     public void testHyperLogLogMerge()
             throws Exception
     {
-        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select cardinality(merge_hll(hll)) from x",
-                "select 2");
+        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('US', 'ok'), ('IT', 'foo')) as t(k, v) group by k) " +
+                        "select cast(cast(merge_hll(hll) as hyperloglog) as varbinary) = cast(cast(cast(merge(hll) as p4hyperloglog) as hyperloglog) as varbinary) from x",
+                "select true");
     }
 
     @Test
     public void testHyperLogLogGroupMerge()
             throws Exception
     {
-        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('IT', 'foo')) as t(k, v) group by k) select k, cardinality(merge_hll(hll)) from x group by 1",
-                "values ('US', 2), ('IT', 1)");
+        assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('US', 'ok'), ('IT', 'foo')) as t(k, v) group by k) " +
+                        "select k, cast(cast(merge_hll(hll) as hyperloglog) as varbinary) = cast(cast(cast(merge(hll) as p4hyperloglog) as hyperloglog) as varbinary) from x group by 1",
+                "values ('US', true), ('IT', true)");
     }
 
     private static LocalQueryRunner createLocalQueryRunner()

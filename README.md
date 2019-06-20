@@ -8,6 +8,8 @@ A 10+ times faster HyperLogLog merge aggregation UDF support for Facebook Presto
 
 It takes `HyperLogLog` as input and result `P4HyperLogLog` (HyperLogLog dense format) as output.
 
+`merge_hll(HyperLogLog)` is equivalent to `cast(merge(HyperLogLog) as P4HyperLogLog`.
+
 ### Test
 
 run `mvn test`
@@ -49,7 +51,7 @@ You can change presto version in `pom.xml` to upgrade to later versions.
 - Is this `merge_hll` faster than built-in `merge` ?
     - Yes. `merge_hll` is more than 10 times faster than built-in `merge` when we compare them in production env.
 
-- Why facebook does not make built-in `merge` function as fast as this one ?
+- Why Presto does not make built-in `merge` function as fast as this one ?
     - This `merge_hll` has a side-effect, which is that the returned result is `P4HyperLogLog` instead of `HyperLogLog`.
 
 - What's the impact of above "side-effect" ?
