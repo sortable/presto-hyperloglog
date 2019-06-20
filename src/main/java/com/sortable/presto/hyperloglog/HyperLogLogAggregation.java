@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 import static com.facebook.presto.spi.StandardErrorCode.INVALID_FUNCTION_ARGUMENT;
 
-@AggregationFunction("merge_hll")
+@AggregationFunction("merge_p4")
 public final class HyperLogLogAggregation
 {
     private HyperLogLogAggregation() {}

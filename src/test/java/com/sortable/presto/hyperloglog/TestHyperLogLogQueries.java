@@ -40,7 +40,7 @@ public class TestHyperLogLogQueries
             throws Exception
     {
         assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('US', 'ok'), ('IT', 'foo')) as t(k, v) group by k) " +
-                        "select cast(cast(merge_hll(hll) as hyperloglog) as varbinary) = cast(cast(cast(merge(hll) as p4hyperloglog) as hyperloglog) as varbinary) from x",
+                        "select cast(cast(merge_p4(hll) as hyperloglog) as varbinary) = cast(cast(cast(merge(hll) as p4hyperloglog) as hyperloglog) as varbinary) from x",
                 "select true");
     }
 
@@ -49,7 +49,7 @@ public class TestHyperLogLogQueries
             throws Exception
     {
         assertQuery("with x as (select k, approx_set(v) as hll from (values ('US', 'foo'), ('US', 'bar'), ('US', 'ok'), ('IT', 'foo')) as t(k, v) group by k) " +
-                        "select k, cast(cast(merge_hll(hll) as hyperloglog) as varbinary) = cast(cast(cast(merge(hll) as p4hyperloglog) as hyperloglog) as varbinary) from x group by 1",
+                        "select k, cast(cast(merge_p4(hll) as hyperloglog) as varbinary) = cast(cast(cast(merge(hll) as p4hyperloglog) as hyperloglog) as varbinary) from x group by 1",
                 "values ('US', true), ('IT', true)");
     }
 
